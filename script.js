@@ -14,10 +14,15 @@ addToCart.forEach(button => {
       cartItem.classList.add("cartItm");
       cartItem.innerHTML = `
       <span>${porductName}</span>
-      <span>$${productPrice.toFixed(2)}</span>`;
+      <span>${productPrice.toFixed(2)}</span>
+      <span><button id="deletebtn" class="text-red-500"><i class="fa-solid fa-trash"></i></button></span>`;
 
       // Add the item to the cart list
       cartItems.appendChild(cartItem);
+
+      // Delete product button
+      const deletebtn = cartItem.querySelector("#deletebtn");
+      deletebtn.addEventListener("click", ()=> deleteprduct(cartItem, productPrice));
 
       // Update total price
       updateTotalPrice(productPrice);
@@ -28,6 +33,20 @@ addToCart.forEach(button => {
       localStorage.setItem("myproduct", JSON.stringify(product));
     })
 });
+
+// Delete a product from the cart
+const deleteprduct = (cartItem, productPrice) => {
+  // Remove item from DOM
+  cartItems.removeChild(cartItem);
+
+  // Update total price
+  updateTotalPrice(-productPrice);
+
+  // Remove from localStorage
+  const products = getproductlocalstorge();
+  const updatedProducts = products.filter((product) => product.productPrice !== productPrice);
+  localStorage.setItem("myProducts", JSON.stringify(updatedProducts));
+}
 
 
 // getproductlocalstorge
@@ -47,7 +66,30 @@ function updateTotalPrice(price) {
     totalPriceElement.textContent = totalPrice.toFixed(2)
 }
 
-// Load Product
 
+// Optionally: Load products from localStorage on page load
+window.addEventListener("DOMContentLoaded", () => {
+  const saveProducts = getproductlocalstorge();
 
-window.addEventListener("DOMContentLoaded",  loadProduct)
+  saveProducts.forEach(product => {
+    // Recreate cart items from localStorage data
+    const cartItem = document.createElement("li");
+    cartItem.classList.add("cartItm");
+    cartItem.innerHTML = `
+      <span>${porductName}</span>
+      <span>${productPrice.toFixed(2)}</span>
+      <span><button id="deletebtn" class="text-red-500"><i class="fa-solid fa-trash"></i></button></span>`;
+
+    // Add the item to the cart list
+    cartItems.appendChild(cartItem);
+
+    // Delete product button
+    const deletebtn = cartItem.querySelector("#deletebtn");
+    deletebtn.addEventListener("click", () =>
+      deleteprduct(cartItem, productPrice)
+    );
+
+    // Update total price
+    updateTotalPrice(productPrice);
+  })
+})
